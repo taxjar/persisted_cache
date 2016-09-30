@@ -27,7 +27,7 @@ Note: This has only been tested on Rails 4.2.5.1 and Rails 5.0.0.1.
 Add it to the gemfile:
 
 ~~~~
-gem 'persisted_cache', '~>0.1.0', git: 'https://github.com/ustorf/persisted_cache.git'
+gem 'persisted_cache', '~>0.1.0', git: 'https://github.com/taxjar/persisted_cache.git'
 ~~~~
 
 Run bundle install to install it.  Then, you need to run the generator:
