@@ -28,7 +28,11 @@ module PersistedCache
         value = yield
         PersistedCache::KeyValuePair.where(key: name).first.try(:destroy)
         PersistedCache::KeyValuePair.create!(key: name, value: value)
-        Rails.cache.write(name, value, options) unless options[:skip_rails_cache]
+        unless options[:skip_rails_cache]
+          Rails.cache.write(name, value, options)
+        else
+          Rails.cache.delete(name, options)
+        end
         return value
       end
       if persisted_value = PersistedCache::KeyValuePair.where(key: name).first.try(:value)

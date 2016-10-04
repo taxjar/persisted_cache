@@ -43,9 +43,11 @@ describe 'PersistedCacheTest' do
         context "skip_rails_cache option passed in" do
           let(:options){{persist: true, skip_rails_cache: true}}
           it "updates db, sets the cache and returns value" do
-            expect(Rails.cache).to receive(:write).never
+            Rails.cache.write(key, [1,2,3])
+            expect(Rails.cache.read(key).size).to eql(3)
             expect{subject}.to change(PersistedCache::KeyValuePair, :count).by(0)
             expect(subject.size).to eql(50)
+            expect(Rails.cache.read(key).size).to eql(50)
           end
         end
       end
@@ -74,9 +76,11 @@ describe 'PersistedCacheTest' do
         context "skip_rails_cache option passed in" do
           let(:options){{persist: true, skip_rails_cache: true}}
           it "updates db, sets the cache and returns value" do
-            expect(Rails.cache).to receive(:write).never
+            Rails.cache.write(key, [1,2,3])
+            expect(Rails.cache.read(key).size).to eql(3)
             expect{subject}.to change(PersistedCache::KeyValuePair, :count).by(0)
             expect(subject.size).to eql(50)
+            expect(Rails.cache.read(key).size).to eql(50)
           end
         end
         context "fail_on_cache_miss option passed in" do
