@@ -31,12 +31,14 @@ module PersistedCache
         Rails.cache.delete(name, options)
         return value
       end
-      if persisted_value = PersistedCache::KeyValuePair.where(key: name).first.try(:value)
-        Rails.cache.write(name, persisted_value, options)
-        return persisted_value
-      else
-        if options[:fail_on_cache_miss]
-          raise PersistedCache::MissingRequiredCache.new("Required cached object does not exist in cache.")
+      if options[:use_persisted]
+        if persisted_value = PersistedCache::KeyValuePair.where(key: name).first.try(:value)
+          Rails.cache.write(name, persisted_value, options)
+          return persisted_value
+        else
+          if options[:fail_on_cache_miss]
+            raise PersistedCache::MissingRequiredCache.new("Required cached object does not exist in cache.")
+          end
         end
       end
       super

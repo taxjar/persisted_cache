@@ -4,7 +4,7 @@ describe 'PersistedCacheTest' do
   include_context 'persisted_cache'
   context "when a block is passed" do
     subject{SomeModel.new.cached_method(options)}
-    let(:options){{}}
+    let(:options){{use_persisted: true}}
     context "no persisted key value pair exists" do
       context "cache miss" do
         it "sets rails cache from db and returns value" do
@@ -28,7 +28,7 @@ describe 'PersistedCacheTest' do
           end
         end
         context "fail_on_cache_miss option passed in" do
-          let(:options){{fail_on_cache_miss: true}}
+          let(:options){{use_persisted: true, fail_on_cache_miss: true}}
           it "raises an error" do
             expect{subject}.to raise_error(PersistedCache::MissingRequiredCache)
           end
@@ -56,7 +56,7 @@ describe 'PersistedCacheTest' do
           end
         end
         context "fail_on_cache_miss option passed in" do
-          let(:options){{fail_on_cache_miss: true}}
+          let(:options){{use_persisted: true, fail_on_cache_miss: true}}
           it "does not raise an error" do
             expect{subject}.not_to raise_error
           end

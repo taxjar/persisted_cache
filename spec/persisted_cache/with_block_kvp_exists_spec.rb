@@ -4,7 +4,7 @@ describe 'PersistedCacheTest' do
   include_context 'persisted_cache'
   context "when a block is passed" do
     subject{SomeModel.new.cached_method(options)}
-    let(:options){{}}
+    let(:options){{use_persisted: true}}
     context "persisted key value pair exists" do
       let(:persisted_value){[1,2,3,4,5]}
       let!(:existing_kvp){PersistedCache::KeyValuePair.create!(key: key, value: persisted_value)}
@@ -33,7 +33,7 @@ describe 'PersistedCacheTest' do
           end
         end
         context "fail_on_cache_miss option passed in" do
-          let(:options){{fail_on_cache_miss: true}}
+          let(:options){{use_persisted: true, fail_on_cache_miss: true}}
           it "does not raise an error" do
             expect{subject}.not_to raise_error
           end
@@ -65,7 +65,7 @@ describe 'PersistedCacheTest' do
           end
         end
         context "fail_on_cache_miss option passed in" do
-          let(:options){{fail_on_cache_miss: true}}
+          let(:options){{use_persisted: true, fail_on_cache_miss: true}}
           it "does not raise an error" do
             expect{subject}.not_to raise_error
           end
