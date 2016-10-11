@@ -12,9 +12,7 @@ It seemed natural to extend Rails.cache.fetch to persist and cache them at the s
 
 To prime the cache, **persist: true** is passed as an option to the fetch method. The block is executed and saved in the db and Rails cache.
 
-When we launched, we had to backfill old reports that users might never access. We didn't need them in Rails.cache, but they had to be in the db. For this case, pass **skip_rails_cache: true** and the key value pair will be stored in the db, but not the rails cache.
-
-We also needed to handle the case when a new user was looking for reports before we generated them and they weren't cached yet.  Use the **fail_on_cache_miss** option for this.  It causes a PersistedCache::MissingRequiredCache exception to be raised if there is no value in the cache. (We rescue this in the controller to show u/i which says the report is being built.)
+We needed to handle the case when a new user was looking for reports before we generated them and they weren't cached yet.  Use the **fail_on_cache_miss** option for this.  It causes a PersistedCache::MissingRequiredCache exception to be raised if there is no value in the cache. (We rescue this in the controller to show u/i which says the report is being built.)
 
 If there is reason to delete the key instead of just updating the value, a **delete_persisted** option can be passed to Rails.cache.delete which will delete the key value pair from the db when it is cleared from the cache.
 

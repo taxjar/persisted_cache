@@ -13,10 +13,11 @@ describe 'PersistedCacheTest' do
         end
         context "persist option passed in" do
           let(:options){{persist: true}}
-          it "saves to the db, sets the cache and returns value" do
+          it "saves to the db, does not set the rails cache and returns value" do
             expect{subject}.to change(PersistedCache::KeyValuePair, :count).by(1)
             expect(subject.size).to eql(50)
-            expect(Rails.cache.read(key).size).to eql(50)
+            PersistedCache::KeyValuePair.destroy_all
+            expect(Rails.cache.read(key)).to be_nil
           end
           context "fail_on_cache_miss option passed in" do
             let(:options){{persist: true, fail_on_cache_miss: true}}
@@ -24,28 +25,11 @@ describe 'PersistedCacheTest' do
               expect{subject}.to raise_error(PersistedCache::InvalidOptions)
             end
           end
-          context "with other options passed in" do
-            let(:options){{persist: true, foo: :bar}}
-            it "respects the other options" do
-              expect(Rails.cache).to receive(:write).with(key, (1..50).map{|i| i}, {:persist=>true, :foo=>:bar, :force=>true})
-              subject
-            end
-          end
         end
         context "fail_on_cache_miss option passed in" do
           let(:options){{fail_on_cache_miss: true}}
           it "raises an error" do
             expect{subject}.to raise_error(PersistedCache::MissingRequiredCache)
-          end
-        end
-        context "skip_rails_cache option passed in" do
-          let(:options){{persist: true, skip_rails_cache: true}}
-          it "saves to the db, sets the cache and returns value" do
-            Rails.cache.write(key, [1,2,3])
-            expect(Rails.cache.read(key).size).to eql(3)
-            expect{subject}.to change(PersistedCache::KeyValuePair, :count).by(1)
-            expect(subject.size).to eql(50)
-            expect(Rails.cache.read(key).size).to eql(50)
           end
         end
       end
@@ -59,25 +43,16 @@ describe 'PersistedCacheTest' do
         end
         context "persist option passed in" do
           let(:options){{persist: true}}
-          it "saves to the db, sets the cache and returns value" do
+          it "saves to the db, does not set the rails cache and returns value" do
             expect{subject}.to change(PersistedCache::KeyValuePair, :count).by(1)
             expect(subject.size).to eql(50)
-            expect(Rails.cache.read(key).size).to eql(50)
+            PersistedCache::KeyValuePair.destroy_all
+            expect(Rails.cache.read(key)).to be_nil
           end
           context "fail_on_cache_miss option passed in" do
             let(:options){{persist: true, fail_on_cache_miss: true}}
             it "raises an error" do
               expect{subject}.to raise_error(PersistedCache::InvalidOptions)
-            end
-          end
-          context "skip_rails_cache option passed in" do
-            let(:options){{persist: true, skip_rails_cache: true}}
-            it "saves to db, clears the cache and returns value" do
-              Rails.cache.write(key, [1,2,3])
-              expect(Rails.cache.read(key).size).to eql(3)
-              expect{subject}.to change(PersistedCache::KeyValuePair, :count).by(1)
-              expect(subject.size).to eql(50)
-              expect(Rails.cache.read(key).size).to eql(50)
             end
           end
         end
