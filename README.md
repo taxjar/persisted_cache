@@ -6,9 +6,9 @@ Rails.cache.fetch(key){block} is pretty clean. On cache miss, the block is execu
 
 Recently we decided to lean on this technique a little harder. We build reports that can include a million rows. In order to display them quickly, we've always used summary tables. Easy enough, but we always seemed to be wanting another column that wasn't summarized.
 
-After this happened a few times, we decided to ditch the summary table approach and just do long running queries at night against the models with all the detail. Instead of building a model which can go out of date, we'd just store the data as a serialized hash every night. If we learned we needed another column, we could just start storing it. We wouldn't want to pull those hashes out of the db all the time though, so we would want to cache them. 
+After this happened a few times, we decided to ditch the summary table approach and just do long running queries at night against the models with all the detail. Instead of building a summarization model which can go out of date, we'd just store the data as a serialized hash every night. If we learned we needed another column, we could just start storing it. We wouldn't want to pull those hashes out of the db all the time though, so we would cache them. 
 
-It seemed natural to extend Rails.cache.fetch to persist and cache them at the same time. On cache miss, **persisted_cache**  tries to fall back to a value in the db. If it's not there, the block is executed and the value is stored in the cache as usual.
+It seemed natural to extend Rails.cache.fetch to persist and cache them at the same time. On cache miss, if an option of use_persisted: true is passed, **persisted_cache**  tries to fall back to a value in the db. If it's not there, the block is executed and the value is stored in the cache as usual.
 
 To prime the cache, **persist: true** is passed as an option to the fetch method. The block is executed and saved in the db and Rails cache.
 
