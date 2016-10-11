@@ -22,11 +22,11 @@ describe 'PersistedCacheTest' do
     let(:value){[41,2,33,14,95]}
     before do
       expect{Rails.cache.fetch(key_to_delete, persist: true){value}}.to change(PersistedCache::KeyValuePair, :count).by(1)
-      expect(Rails.cache.fetch(key_to_delete)).to eql(value)
+      expect(Rails.cache.read(key_to_delete)).to eql(value)
     end
     subject{Rails.cache.delete(key_to_delete, delete_persisted: true)}
     it "should remove the pair from cache and db" do
-      expect(Rails.cache.fetch('key_to_delete')).to be_nil
+      expect(Rails.cache.read('key_to_delete')).to be_nil
       expect{subject}.to change(PersistedCache::KeyValuePair, :count).by(-1)
     end
   end
@@ -37,7 +37,7 @@ describe 'PersistedCacheTest' do
     it "should not be affected" do
       subject
       sleep 2
-      expect(Rails.cache.fetch(key)).to be_nil
+      expect(Rails.cache.read(key)).to be_nil
     end
   end
 
