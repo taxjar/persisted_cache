@@ -9,18 +9,19 @@ describe 'PersistedCacheTest' do
       let(:persisted_value){[1,2,3,4,5]}
       let!(:existing_kvp){PersistedCache::KeyValuePair.create!(key: key, value: persisted_value)}
       context "cache miss" do
-        it "returns and caches value from db" do
+        it "sets rails cache from db and returns value" do
+          expect(PersistedCache::KeyValuePair).to receive(:create!).never
           expect(Rails.cache).to receive(:write).with(key, persisted_value, options)
-          expect(subject.size).to eql(persisted_value.size)
+          expect(subject).to eql(persisted_value)
         end
         context "persist option passed in" do
           let(:options){{persist: true}}
-          it "updates db, deletes the key from the rails cache and returns value" do
+          it "updates db, does not set the rails cache and returns value" do
             expect(Rails.cache.read(key)).to eql(persisted_value)
             expect(PersistedCache::KeyValuePair.find_by_key(key).id).to eql(existing_kvp.id)
             expect{subject}.to change(PersistedCache::KeyValuePair, :count).by(0)
             expect(PersistedCache::KeyValuePair.find_by_key(key).id).not_to eql(existing_kvp.id)
-            expect(subject.size).to eql(50)
+            expect(subject).to eql(SomeModel.method_results)
             PersistedCache::KeyValuePair.destroy_all
             expect(Rails.cache.read(key)).to be_nil
           end
@@ -42,9 +43,8 @@ describe 'PersistedCacheTest' do
         let(:value){[1]}
         before{manually_set_cache_value}
         it "returns value from cache" do
-          expect(Rails.cache.read(key)).to eql(value)
-          expect(subject.size).to eql(1)
-          expect(Rails.cache.read(key).size).to eql(1)
+          expect(PersistedCache::KeyValuePair).to receive(:where).never
+          expect(subject).to eql(value)
         end
         context "persist option passed in" do
           let(:options){{persist: true}}
@@ -53,7 +53,7 @@ describe 'PersistedCacheTest' do
             expect(PersistedCache::KeyValuePair.find_by_key(key).id).to eql(existing_kvp.id)
             expect{subject}.to change(PersistedCache::KeyValuePair, :count).by(0)
             expect(PersistedCache::KeyValuePair.find_by_key(key).id).not_to eql(existing_kvp.id)
-            expect(subject.size).to eql(50)
+            expect(subject).to eql(SomeModel.method_results)
             PersistedCache::KeyValuePair.destroy_all
             expect(Rails.cache.read(key)).to be_nil
           end

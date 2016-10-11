@@ -7,16 +7,17 @@ describe 'PersistedCacheTest' do
     let(:options){{}}
     context "no persisted key value pair exists" do
       context "cache miss" do
-        it "returns and caches value returned by method" do
-          expect(subject.size).to eql(50)
-          expect(Rails.cache.read(key).size).to eql(50)
+        it "sets rails cache from db and returns value" do
+          expect(Rails.cache.read(key)).to be_nil
+          expect(PersistedCache::KeyValuePair).to receive(:create!).never
+          expect(subject).to eql(SomeModel.method_results)
+          expect(Rails.cache.read(key)).to eql(SomeModel.method_results)
         end
         context "persist option passed in" do
           let(:options){{persist: true}}
           it "saves to the db, does not set the rails cache and returns value" do
-            expect{subject}.to change(PersistedCache::KeyValuePair, :count).by(1)
-            expect(subject.size).to eql(50)
-            PersistedCache::KeyValuePair.destroy_all
+            expect(PersistedCache::KeyValuePair).to receive(:create!)
+            expect(subject).to eql(SomeModel.method_results)
             expect(Rails.cache.read(key)).to be_nil
           end
           context "fail_on_cache_miss option passed in" do
@@ -37,16 +38,14 @@ describe 'PersistedCacheTest' do
         let(:value){[1]}
         before{manually_set_cache_value}
         it "returns value from cache" do
-          expect(Rails.cache.read(key)).to eql(value)
-          expect(subject.size).to eql(1)
-          expect(Rails.cache.read(key).size).to eql(1)
+          expect(PersistedCache::KeyValuePair).to receive(:where).never
+          expect(subject).to eql(value)
         end
         context "persist option passed in" do
           let(:options){{persist: true}}
           it "saves to the db, does not set the rails cache and returns value" do
-            expect{subject}.to change(PersistedCache::KeyValuePair, :count).by(1)
-            expect(subject.size).to eql(50)
-            PersistedCache::KeyValuePair.destroy_all
+            expect(PersistedCache::KeyValuePair).to receive(:create!)
+            expect(subject).to eql(SomeModel.method_results)
             expect(Rails.cache.read(key)).to be_nil
           end
           context "fail_on_cache_miss option passed in" do
