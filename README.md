@@ -8,9 +8,11 @@ Recently we decided to lean on this technique a little harder. We build reports 
 
 After this happened a few times, we decided to ditch the summary table approach and just do long running queries at night against the models with all the detail. Instead of building a summarization model which can go out of date, we'd just store the data as a serialized hash every night. If we learned we needed another column, we could just start storing it. We wouldn't want to pull those hashes out of the db all the time though, so we would cache them. 
 
-It seemed natural to extend Rails.cache.fetch to persist and cache them at the same time. On cache miss, if an option of **persisted_cache: 'read'** is passed to Rails.cache.fetch, **persisted_cache**  tries to fall back to a value in the db. If it's not there, the block is executed and the value is stored in the cache as usual.
+It seemed natural to extend Rails.cache.fetch to persist and cache them at the same time. On cache miss, if an option of **persisted_cache: 'read'** is passed to Rails.cache.fetch or Rails.cache.read, **persisted_cache**  tries to fall back to a value in the db. If it's not there, the block is executed and the value is stored in the cache as usual. If persisted_cache: 'read' is not passed, the db is not checked at all.
 
-To prime the cache, **persisted_cache: 'write'** is passed as an option to the fetch method. The block is executed and saved in the db and Rails cache.
+To prime the cache, **persisted_cache: 'write'** is passed as an option to the fetch method. The block is executed and saved in the db.
+
+The first time Rails.cache.fetch or Rails.cache.read are called for the key with the **persisted_cache: 'read'** option, it is pulled from the db and stored in Rails cache.
 
 We needed to handle the case when a new user was looking for reports before we generated them and they weren't cached yet.  Use the **persisted_cache: 'require'** option for this.  It causes a PersistedCache::MissingRequiredCache exception to be raised if there is no value in the cache. (We rescue this in the controller to show u/i which says the report is being built.)
 
