@@ -2,7 +2,7 @@
 
 DB layer for Rails.cache.fetch.
 
-Rails.cache.fetch(key){block} is pretty clean. On cache miss, the block is executed. Results are stored in the Rails.cache and returned. Subsequent calls are returned from the cache. Easy peasy. We use this for things like dashboard tiles which take some time to build and don't change very often. 
+Rails.cache.fetch(key){block} is pretty clean. On cache miss, the block is executed. Results are stored in the Rails cache and returned. Subsequent calls are returned from the cache. Easy peasy. We use this for things like dashboard tiles which take some time to build and don't change very often. 
 
 Recently we decided to lean on this technique a little harder. We build reports that can include a million rows. In order to display them quickly, we've always used summary tables. Easy enough, but we always seemed to be wanting another column that wasn't summarized.
 
