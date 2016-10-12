@@ -3,10 +3,7 @@ module PersistedCache
 
     def fetch(name, options = nil)
       options = merged_options(options)
-      if options && options[:persist]
-        if options[:fail_on_cache_miss]
-          raise PersistedCache::InvalidOptions.new("Cannot persist if fail_on_cache_miss is true.")
-        end
+      if options && options[:persisted_cache] == 'write'
         options.merge!(force: true)
       end
       super
@@ -14,6 +11,7 @@ module PersistedCache
 
     def read(name, options = nil)
       unless result = super
+        return unless options && %w{read require}.include?(options[:persisted_cache])
         if persisted_value = PersistedCache::KeyValuePair.where(key: name).first.try(:value)
           Rails.cache.write(name, persisted_value, options)
           result = persisted_value
@@ -24,19 +22,19 @@ module PersistedCache
 
     def save_block_result_to_cache(name, options)
       options = merged_options(options)
-      if options && options[:persist]
+      if options && options[:persisted_cache] == 'write'
         value = yield
         PersistedCache::KeyValuePair.where(key: name).first.try(:destroy)
         PersistedCache::KeyValuePair.create!(key: name, value: value)
         Rails.cache.delete(name, options)
         return value
       end
-      if options[:use_persisted]
+      if %w{read require}.include?(options[:persisted_cache])
         if persisted_value = PersistedCache::KeyValuePair.where(key: name).first.try(:value)
           Rails.cache.write(name, persisted_value, options)
           return persisted_value
         else
-          if options[:fail_on_cache_miss]
+          if options[:persisted_cache] == 'require'
             raise PersistedCache::MissingRequiredCache.new("Required cached object does not exist in cache.")
           end
         end
@@ -45,7 +43,7 @@ module PersistedCache
     end
 
     def delete(name, options = nil)
-      if options && options[:delete_persisted]
+      if options && options[:persisted_cache] == 'delete'
         PersistedCache::KeyValuePair.where(key: name).first.try(:destroy)
       end
       super

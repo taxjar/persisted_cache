@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-describe 'use_persisted option' do
+describe 'opt in' do
   include_context 'persisted_cache'
   context "when true" do
-    let(:options){{use_persisted: true}}
+    let(:options){{persisted_cache: 'read'}}
     let(:db_result){PersistedCache::KeyValuePair.new(key: key, value: SomeModel.method_results)}
     subject{SomeModel.new.cached_method(options)}
     it "should hit the db" do

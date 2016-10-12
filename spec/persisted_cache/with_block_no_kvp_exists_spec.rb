@@ -4,7 +4,7 @@ describe 'PersistedCacheTest' do
   include_context 'persisted_cache'
   context "when a block is passed" do
     subject{SomeModel.new.cached_method(options)}
-    let(:options){{use_persisted: true}}
+    let(:options){{persisted_cache: 'read'}}
     context "no persisted key value pair exists" do
       context "cache miss" do
         it "sets rails cache from db and returns value" do
@@ -14,21 +14,15 @@ describe 'PersistedCacheTest' do
           expect(Rails.cache.read(key)).to eql(SomeModel.method_results)
         end
         context "persist option passed in" do
-          let(:options){{persist: true}}
+          let(:options){{persisted_cache: 'write'}}
           it "saves to the db, does not set the rails cache and returns value" do
             expect(PersistedCache::KeyValuePair).to receive(:create!)
             expect(subject).to eql(SomeModel.method_results)
             expect(Rails.cache.read(key)).to be_nil
           end
-          context "fail_on_cache_miss option passed in" do
-            let(:options){{persist: true, fail_on_cache_miss: true}}
-            it "raises an error" do
-              expect{subject}.to raise_error(PersistedCache::InvalidOptions)
-            end
-          end
         end
         context "fail_on_cache_miss option passed in" do
-          let(:options){{use_persisted: true, fail_on_cache_miss: true}}
+          let(:options){{persisted_cache: 'require'}}
           it "raises an error" do
             expect{subject}.to raise_error(PersistedCache::MissingRequiredCache)
           end
@@ -42,21 +36,15 @@ describe 'PersistedCacheTest' do
           expect(subject).to eql(value)
         end
         context "persist option passed in" do
-          let(:options){{persist: true}}
+          let(:options){{persisted_cache: 'write'}}
           it "saves to the db, does not set the rails cache and returns value" do
             expect(PersistedCache::KeyValuePair).to receive(:create!)
             expect(subject).to eql(SomeModel.method_results)
             expect(Rails.cache.read(key)).to be_nil
           end
-          context "fail_on_cache_miss option passed in" do
-            let(:options){{persist: true, fail_on_cache_miss: true}}
-            it "raises an error" do
-              expect{subject}.to raise_error(PersistedCache::InvalidOptions)
-            end
-          end
         end
         context "fail_on_cache_miss option passed in" do
-          let(:options){{use_persisted: true, fail_on_cache_miss: true}}
+          let(:options){{persisted_cache: 'require'}}
           it "does not raise an error" do
             expect{subject}.not_to raise_error
           end

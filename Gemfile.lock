@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    persisted_cache (0.1.1)
+    persisted_cache (0.1.2)
       rails (> 4.2)
 
 GEM

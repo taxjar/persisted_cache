@@ -21,12 +21,12 @@ describe 'PersistedCacheTest' do
     let(:key_to_delete){'delete-me'}
     let(:value){[41,2,33,14,95]}
     before do
-      expect{Rails.cache.fetch(key_to_delete, persist: true){value}}.to change(PersistedCache::KeyValuePair, :count).by(1)
-      expect(Rails.cache.read(key_to_delete)).to eql(value)
+      expect{Rails.cache.fetch(key_to_delete, persisted_cache: 'write'){value}}.to change(PersistedCache::KeyValuePair, :count).by(1)
+      expect(Rails.cache.fetch(key_to_delete, persisted_cache: 'read')).to eql(value)
     end
-    subject{Rails.cache.delete(key_to_delete, delete_persisted: true)}
+    subject{Rails.cache.delete(key_to_delete, persisted_cache: 'delete')}
     it "should remove the pair from cache and db" do
-      expect(Rails.cache.read('key_to_delete')).to be_nil
+      expect(Rails.cache.read('key_to_delete', persisted_cache: 'read')).to be_nil
       expect{subject}.to change(PersistedCache::KeyValuePair, :count).by(-1)
     end
   end
