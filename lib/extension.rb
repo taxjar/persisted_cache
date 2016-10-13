@@ -15,6 +15,10 @@ module PersistedCache
         if persisted_value = PersistedCache::KeyValuePair.where(key: name).first.try(:value)
           Rails.cache.write(name, persisted_value, options)
           result = persisted_value
+        else
+          if options[:persisted_cache] == 'require'
+            raise PersistedCache::MissingRequiredCache.new("Required cached object does not exist in cache.")
+          end
         end
       end
       result

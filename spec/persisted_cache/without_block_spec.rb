@@ -8,6 +8,21 @@ describe 'PersistedCacheTest' do
       it "should return false" do
         expect(subject).to be_falsey
       end
+      context "required option is passed" do
+        subject{Rails.cache.fetch(key, persisted_cache: 'require')}
+        let(:value){{foo: 'bar'}}
+        context "kvp exists" do
+          before{expect{Rails.cache.fetch(key, persisted_cache: 'write'){value}}.to change(PersistedCache::KeyValuePair, :count).by(1)}
+          it "should raise no error" do
+            expect{subject}.not_to raise_error
+          end
+        end
+        context "kvp doesn't exist" do
+          it "should raise error" do
+            expect{subject}.to raise_error(PersistedCache::MissingRequiredCache)
+          end
+        end
+      end
     end
     context "cache hit" do
       let(:value){'blafoo'}
