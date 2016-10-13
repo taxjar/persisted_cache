@@ -2,7 +2,6 @@ require 'extension'
 module PersistedCache
 
   class MissingRequiredCache < Exception; end
-  class InvalidOptions < Exception; end
   class << self
     attr_accessor :configuration
   end
